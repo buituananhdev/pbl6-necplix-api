@@ -1,0 +1,8 @@
+Flask
+fastapi
+pandas
+numpy
+scikit-learn
+nltk
+fuzzywuzzy
+python-Levenshtein
