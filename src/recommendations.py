@@ -3,12 +3,18 @@ from fastapi.responses import JSONResponse
 from fuzzywuzzy import process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
+from pathlib import Path
 
 from .preprocessing import preprocess_text
 
 # Load data
-df1 = pd.read_csv('tmdb_5000_credits.csv')
-df2 = pd.read_csv('tmdb_5000_movies.csv')
+# Set up relative paths
+base_path = Path(__file__).resolve().parent
+movies_path = base_path / 'data' / 'movies.csv'
+credits_path = base_path / 'data' / 'credits.csv'
+df1 = pd.read_csv(credits_path)
+df2 = pd.read_csv(movies_path)
+
 df1.columns = ['id', 'tittle', 'cast', 'crew']
 df2 = df2.merge(df1, on='id')
 df2 = df2.dropna(subset=['title'])
