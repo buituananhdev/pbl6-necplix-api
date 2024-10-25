@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Body
+from fastapi import FastAPI, Request, Body, Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -29,9 +29,27 @@ async def healthcheck(request: Request) -> JSONResponse:
 #     return JSONResponse(content=result)
 
 @app.post("/v1/CFrecommendations", include_in_schema=False)
-async def get_CF_movie_recommendations(request: Request, user_id: int = Body(...), search_query: str = Body(...)) -> JSONResponse:
+async def get_CF_movie_recommendations(
+    request: Request, 
+    user_id: int = Body(...), 
+    search_query: str = Body(...), 
+    page: int = Query(1, ge=1), 
+    page_size: int = Query(10, ge=1)
+) -> JSONResponse:
+    # Lấy kết quả recommendation
     result = get_prioritized_recommendations(user_id, search_query)
-    return JSONResponse(content=result)
+    
+    # Áp dụng pagination
+    start = (page - 1) * page_size
+    end = start + page_size
+    paginated_result = result[start:end]
+    
+    return JSONResponse(content={
+        "page": page,
+        "page_size": page_size,
+        "total_results": len(result),
+        "results": paginated_result
+    })
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
