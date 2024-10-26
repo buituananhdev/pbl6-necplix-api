@@ -6,14 +6,14 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .env.docker-compose
+      - .env.dev
 
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+  # redis:
+  #   image: redis:latest
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
 
-volumes:
-  redis_data:
+# volumes:
+  # redis_data:
