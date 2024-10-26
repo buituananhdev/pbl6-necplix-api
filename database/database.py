@@ -2,16 +2,16 @@ from typing import List, Union
 
 from beanie import PydanticObjectId
 
-from models.admin import Admin
+from models.user import User
 from models.student import Student
 
-admin_collection = Admin
+user_collection = User
 student_collection = Student
 
 
-async def add_admin(new_admin: Admin) -> Admin:
-    admin = await new_admin.create()
-    return admin
+async def add_user(new_user: User) -> User:
+    user = await new_user.create()
+    return user
 
 
 async def retrieve_students() -> List[Student]:
