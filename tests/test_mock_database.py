@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from httpx import AsyncClient
 import pytest
 
-from models.admin import Admin
+from models.user import User
 from models.student import Student
 from tests.conftest import mock_no_authentication
 
@@ -17,8 +17,8 @@ class TestMockAuthentication:
     @pytest.mark.anyio
     async def test_mock_databases(self, client_test: AsyncClient):
         # generate data
-        await Admin(
-            fullname="admin", email="admin@admin.com", password="admin"
+        await User(
+            fullname="user", email="user@user.com", password="user"
         ).create()
 
         await Student(
@@ -35,8 +35,8 @@ class TestMockAuthentication:
 
     @pytest.mark.anyio
     async def test_mock_database(self, client_test: AsyncClient):
-        await Admin(
-            fullname="admin", email="admin@admin.com", password="admin"
+        await User(
+            fullname="user", email="user@user.com", password="user"
         ).create()
 
         await Student(

@@ -8,13 +8,12 @@ services:
     env_file:
       - .env.docker-compose
 
-  mongodb:
-    image: bitnami/mongodb:latest
+  redis:
+    image: redis:latest
     ports:
-      - "27017"
+      - "6379:6379"
     volumes:
-      - data:/bitnami/mongodb
-
+      - redis_data:/data
 
 volumes:
-  data:
+  redis_data:
