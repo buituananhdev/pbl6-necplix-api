@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     secret_key: str = "secret"
     algorithm: str = "HS256"
 
+    # TMDB API key
+    TMDB_API_KEY: str
     class Config:
         env_file = ".env.dev"
         from_attributes = True
