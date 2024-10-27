@@ -32,7 +32,7 @@ jobs:
             git pull origin main
 
             # Stop and remove existing containers
-            docker-compose down
+            docker compose down
 
             # Start new containers with Docker Compose
-            docker-compose up -d --build
+            docker compose up -d --build
