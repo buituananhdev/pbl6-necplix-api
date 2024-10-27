@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create temporary directory for SSH
+        run: mkdir -p ~/.ssh
+
+      - name: Configure SSH
+        run: |
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+
+      - name: SSH to VM and deploy with Docker Compose
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            # Pull latest changes
+            cd pbl6-necplix-api
+            git pull origin main
+
+            # Stop and remove existing containers
+            docker-compose down
+
+            # Start new containers with Docker Compose
+            docker-compose up -d --build
