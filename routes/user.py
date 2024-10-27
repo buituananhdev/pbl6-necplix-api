@@ -1,7 +1,8 @@
-from fastapi import Body, APIRouter, HTTPException
+from fastapi import Body, Depends, APIRouter, HTTPException, status
 from passlib.context import CryptContext
 
-from auth.jwt_handler import sign_jwt
+from auth.jwt_bearer import JWTBearer
+from auth.jwt_handler import sign_jwt, decode_jwt
 from database.database import add_user
 from models.user import User
 from schemas.user import UserData, UserSignIn
@@ -19,17 +20,41 @@ async def user_login(user_credentials: UserSignIn = Body(...)):
         if password:
             return sign_jwt(user_credentials.username)
 
-        raise HTTPException(status_code=403, detail="Incorrect email or password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
 
-    raise HTTPException(status_code=403, detail="Incorrect email or password")
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
 
+@router.get("/get-me", response_model=UserData, dependencies=[Depends(JWTBearer())])
+async def get_me(token: str = Depends(JWTBearer())):
+    payload = decode_jwt(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+    
+    email = payload.get("email")
+    if email is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token data",
+        )
+    
+    user = await User.find_one(User.email == email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    
+    return UserData(**user.dict())
 
 @router.post("", response_model=UserData)
 async def user_signup(user: User = Body(...)):
     user_exists = await User.find_one(User.email == user.email)
     if user_exists:
         raise HTTPException(
-            status_code=409, detail="User with email supplied already exists"
+            status_code=status.HTTP_409_CONFLICT, detail="User with email supplied already exists"
         )
 
     user.password = hash_helper.encrypt(user.password)
