@@ -6,7 +6,6 @@ from config.config import initiate_database
 from routes.user import router as UserRouter
 from routes.student import router as StudentRouter
 from routes.movie import router as MovieRouter
-from routes.movies import router as MoviesRouter
 
 app = FastAPI()
 
@@ -39,4 +38,3 @@ async def read_root():
 app.include_router(UserRouter, tags=["Users"], prefix="/users")
 app.include_router(MovieRouter, tags=["Movies"], prefix="/movies",dependencies=[Depends(token_listener)])
 app.include_router(StudentRouter,tags=["Students"],prefix="/students",dependencies=[Depends(token_listener)])
-app.include_router(MoviesRouter, tags=["Movies"], prefix="/movies", dependencies=[Depends(token_listener)])
