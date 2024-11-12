@@ -37,6 +37,6 @@ async def read_root():
 
 
 app.include_router(UserRouter, tags=["Users"], prefix="/users")
-app.include_router(MovieRouter, tags=["Movies"], prefix="/movies",dependencies=[Depends(token_listener)])
+app.include_router(MovieRouter, tags=["TMDB Movies"], prefix="/tmdb-movies",dependencies=[Depends(token_listener)])
 app.include_router(StudentRouter,tags=["Students"],prefix="/students",dependencies=[Depends(token_listener)])
-app.include_router(MoviesRouter, tags=["Movies"], prefix="/movies", dependencies=[Depends(token_listener)])
+app.include_router(MoviesRouter, tags=["Movies"], prefix="/movies")
