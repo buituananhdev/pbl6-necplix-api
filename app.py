@@ -5,8 +5,8 @@ from auth.jwt_bearer import JWTBearer
 from config.config import initiate_database
 from routes.user import router as UserRouter
 from routes.student import router as StudentRouter
-from routes.movie import router as MovieRouter
-from routes.movies import router as MoviesRouter
+from routes.tmdb_movie import router as MovieRouter
+from routes.movie import router as MoviesRouter
 
 app = FastAPI()
 
