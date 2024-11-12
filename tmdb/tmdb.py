@@ -1,5 +1,5 @@
 from typing import List
-from schemas.movie import MovieData, MovieDetail
+from schemas.tmdb_movie import MovieData, MovieDetail
 from config.config import Settings
 from services.redis import get_redis_service
 import httpx

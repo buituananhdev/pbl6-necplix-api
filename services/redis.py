@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends
 from functools import lru_cache
 
 class RedisService:
-    def __init__(self, host: str = "redis", port: int = 6379, db: int = 0):
+    def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0):
         self.client = redis.Redis(host=host, port=port, db=db)
 
     def set(self, key: str, value: str, ttl: int = 3600):

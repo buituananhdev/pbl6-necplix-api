@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends
 from bson import ObjectId
-from database.database import *
+from database.rating import *
 from models.rating import Rating
 from schemas.rating import Response, UpdateRatingModel
 from auth.jwt_bearer import JWTBearer
