@@ -2,7 +2,7 @@ from typing import List
 from fastapi import Body, Depends, APIRouter, HTTPException, status
 from schemas.movie import MovieDetail, MovieData, Response, UpdateMovieModel
 from models.movie import Movie
-from database.database import retrieve_movies, add_movie, update_movie_data, delete_movie, retrieve_movie
+from database.movie import retrieve_movies, add_movie, update_movie_data, delete_movie, retrieve_movie
 from beanie import PydanticObjectId
 
 

@@ -2,7 +2,7 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from passlib.context import CryptContext
 
-from database.database import user_collection
+from database.user import user_collection
 
 security = HTTPBasic()
 hash_helper = CryptContext(schemes=["bcrypt"])

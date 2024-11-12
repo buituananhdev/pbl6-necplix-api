@@ -2,7 +2,7 @@ from typing import List, Optional
 from beanie import Document
 
 class Movie(Document):
-    movie_id: Optional[int] = None  # Lưu ID riêng của phim, nếu có
+    movie_id: Optional[int] = None
     title: Optional[str] = None
     genre_ids: Optional[List[int]] = []
 
