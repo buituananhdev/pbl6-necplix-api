@@ -1,27 +1,19 @@
 from typing import List, Union
-
 from beanie import PydanticObjectId
-
-from models.user import User
 from models.rating import Rating
 
-user_collection = User
+
 rating_collection = Rating
-
-
-async def add_user(new_user: User) -> User:
-    user = await new_user.create()
-    return user
-
-
-async def retrieve_ratings() -> List[Rating]:
-    ratings = await rating_collection.all().to_list()
-    return ratings
 
 
 async def add_rating(new_rating: Rating) -> Rating:
     rating = await new_rating.create()
     return rating
+
+
+async def retrieve_ratings() -> List[Rating]:
+    ratings = await rating_collection.all().to_list()
+    return ratings
 
 
 async def retrieve_rating(id: PydanticObjectId) -> Rating:
