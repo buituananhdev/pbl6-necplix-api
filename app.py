@@ -7,6 +7,7 @@ from routes.user import router as UserRouter
 from routes.tmdb_movie import router as TMDBMovieRouter
 from routes.movie import router as MoviesRouter
 from routes.rating import router as RatingRouter
+from recommender.content_based import initiate_content_based_recommendation
 app = FastAPI()
 
 token_listener = JWTBearer()
@@ -28,6 +29,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def start_database():
     await initiate_database()
+    await initiate_content_based_recommendation()
 
 
 @app.get("/", tags=["Root"])
