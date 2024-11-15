@@ -17,6 +17,11 @@ indices = None
 df = None
 redis_service = get_redis_service()
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def load_data_from_db():
     settings = Settings()
     client = MongoClient(settings.DATABASE_URL)
@@ -28,34 +33,35 @@ def load_data_from_db():
 # Initialize or load recommendation data
 async def initiate_content_based_recommendation():
     global cosine_sim, indices, df
+    try:
+        cosine_sim = redis_service.get('cosine_sim')
+        indices = redis_service.get('indices')
 
-    cosine_sim = redis_service.get('cosine_sim')
-    indices = redis_service.get('indices')
+        # Load df directly from MongoDB instead of caching in Redis
+        df = load_data_from_db()
+        logger.info("Load data success")
+        # If cosine_sim and indices exist in Redis, load them from cache
+        if indices is not None:
+            indices = pickle.loads(indices)
+            print("Cache hit")
+            tfidf = TfidfVectorizer(stop_words='english')
+            tfidf_matrix = tfidf.fit_transform(df['combined'])
+            cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+        else:
+            # Create TF-IDF matrix with limited features to reduce memory usage
+            tfidf = TfidfVectorizer(stop_words='english')
+            tfidf_matrix = tfidf.fit_transform(df['combined'])
 
-    # Load df directly from MongoDB instead of caching in Redis
-    df = load_data_from_db()
-    print("Load data success")
-    # If cosine_sim and indices exist in Redis, load them from cache
-    if indices is not None:
-        indices = pickle.loads(indices)
-        print("Cache hit")
+            # Calculate cosine similarity matrix using sparse matrix format
+            cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+            indices = pd.Series(df.index, index=df['title']).drop_duplicates()
+            print("Cache miss")
+            redis_service.set('indices', pickle.dumps(indices), 120)
+            print("Cache indices")
         
-        tfidf = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = tfidf.fit_transform(df['combined'])
-        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-    else:
-        # Create TF-IDF matrix with limited features to reduce memory usage
-        tfidf = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = tfidf.fit_transform(df['combined'])
-
-        # Calculate cosine similarity matrix using sparse matrix format
-        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-        indices = pd.Series(df.index, index=df['title']).drop_duplicates()
-        print("Cache miss")
-        redis_service.set('indices', pickle.dumps(indices), 120)
-        print("Cache indices")
-    
-    print("Init recommender successful!")
+        logger.info("Init recommender successful!")
+    except Exception as e:
+        logger.error(f"Error initializing content-based recommendation: {e}")
 
 # Recommendation function for exact title match
 async def get_recommendations(title):
