@@ -7,6 +7,7 @@ from routes.user import router as UserRouter
 from routes.tmdb_movie import router as TMDBMovieRouter
 from routes.movie import router as MoviesRouter
 from routes.rating import router as RatingRouter
+from routes.recommend import router as RecommendRouter
 from recommender.content_based import initiate_content_based_recommendation
 app = FastAPI()
 
@@ -39,6 +40,7 @@ async def read_root():
 
 
 app.include_router(UserRouter, tags=["Users"], prefix="/users")
+app.include_router(RecommendRouter, tags=["Recommender"], prefix="/recommend")
 app.include_router(TMDBMovieRouter, tags=["TMDB Movies"], prefix="/tmdb-movies",dependencies=[Depends(token_listener)])
 app.include_router(MoviesRouter, tags=["Movies"], prefix="/movies", dependencies=[Depends(token_listener)])
 app.include_router(RatingRouter,tags=["Ratings"],prefix="/ratings",dependencies=[Depends(token_listener)])
