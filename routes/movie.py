@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import Body, Depends, APIRouter, HTTPException, status
+from fastapi import Body, Depends, APIRouter, HTTPException, status, Query
 from schemas.movie import MovieDetail, MovieData, Response, UpdateMovieModel
 from models.movie import Movie
 from database.movie import retrieve_movies, add_movie, update_movie_data, delete_movie, retrieve_movie
@@ -9,8 +9,8 @@ from beanie import PydanticObjectId
 router = APIRouter()
 
 @router.get("/", response_description="Movies retrieved", response_model=Response)
-async def get_movies():
-    movies = await retrieve_movies()
+async def get_movies(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1)):
+    movies = await retrieve_movies(skip=skip, limit=limit)
     return {
         "status_code": 200,
         "response_type": "success",

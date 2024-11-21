@@ -5,8 +5,8 @@ from models.movie import Movie
 
 movie_collection = Movie
 
-async def retrieve_movies() -> List[Movie]:
-    movies = await movie_collection.all().to_list()
+async def retrieve_movies(skip: int = 0, limit: int = 10) -> List[Movie]:
+    movies = await movie_collection.find_all().skip(skip).limit(limit).to_list()
     return movies
 
 async def retrieve_movie(id: PydanticObjectId) -> Movie:
