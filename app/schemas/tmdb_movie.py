@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 
-class MovieData(BaseModel):
+class TMDBMovie(BaseModel):
     id: Optional[int] = None
     title: Optional[str] = None
     original_title: Optional[str] = None
