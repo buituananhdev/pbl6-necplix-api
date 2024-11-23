@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class RedisService:
-    def __init__(self, host: str = "redis", port: int = 6379, db: int = 0):
+    def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0):
         try:
             self.client = redis.Redis(host=host, port=port, db=db)
             self.client.ping()

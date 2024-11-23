@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import Body, Depends, APIRouter, HTTPException, status, Query
-from recommender.content_based import get_recommendations_fuzzy
+from content_based import get_recommendations_fuzzy
 import json
 router = APIRouter()
 

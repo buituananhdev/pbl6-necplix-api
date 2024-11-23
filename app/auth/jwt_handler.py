@@ -2,9 +2,7 @@ import time
 from typing import Dict
 
 import jwt
-
-from config.config import Settings
-
+from common.config.config import Settings
 
 def token_response(token: str):
     return {"access_token": token}

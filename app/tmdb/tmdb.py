@@ -1,6 +1,6 @@
 from typing import List
 from schemas.tmdb_movie import MovieData, MovieDetail
-from config.config import Settings
+from common.config.config import Settings
 from services.redis import get_redis_service
 import httpx
 import json
