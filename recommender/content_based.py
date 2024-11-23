@@ -5,7 +5,7 @@ import pickle
 from common.services.redis import get_redis_service
 import logging
 from common.services.database import load_data_from_db
-import difflib
+from rapidfuzz import process
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ async def initiate_content_based_recommendation_optimized():
     global df
     try:
         # Load data from database (assuming load_data_from_db loads data from MongoDB or other source)
-        df = load_data_from_db("content_based_data_6", limit=2000)
+        df = pd.DataFrame(load_data_from_db("content_based_data", limit=45000))
         logger.info("Data loaded successfully")
 
         # Calculate and cache cosine similarity in chunks
@@ -62,6 +62,7 @@ async def initiate_content_based_recommendation_optimized():
 
 # Recommendation function for exact title match
 async def get_recommendations(title):
+    logger.info(f"Getting recommendations for: {title}")
     cached_recommendations = redis_service.get(f'recommendation:{title}')
     if cached_recommendations:
         return pickle.loads(cached_recommendations)
@@ -84,10 +85,10 @@ async def get_recommendations(title):
 
 # Fuzzy title matching function
 def get_closest_title(query):
-    query = str(query)
-    titles = df['title'].tolist()
-    closest_matches = difflib.get_close_matches(query, titles, n=1, cutoff=0.6)
-    return closest_matches[0] if closest_matches else None
+    titles = load_data_from_db("content_based_data", fields=["title"])
+    titles = [movie["title"] for movie in titles]
+    closest_match = process.extractOne(query, titles, score_cutoff=60)
+    return closest_match[0] if closest_match else None
 
 # Fuzzy recommendation function
 async def get_recommendations_fuzzy(query):
