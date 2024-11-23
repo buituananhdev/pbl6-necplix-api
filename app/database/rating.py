@@ -31,3 +31,7 @@ async def update_rating_data(id: PydanticObjectId, data: dict) -> Union[bool, Ra
         await rating.update(update_query)
         return rating
     return False
+
+async def retrieve_movies_ratings(movie_id: int) -> List[Rating]:
+    ratings = await rating_collection.find({"movie_id": movie_id}).to_list()
+    return ratings

@@ -8,6 +8,7 @@ class Rating(Document):
     user_id: Optional[Link[User]] = None
     movie_id: int
     rating: int
+    comment: Optional[str] = None
     timestamp: Optional[datetime] = datetime.now()
 
     class Config:
@@ -15,6 +16,7 @@ class Rating(Document):
             "example": {
                 "user_id": "60d5ec49f1e7e3a4b8e788a2",
                 "movie_id": 123,
+                "comment": "This is a great movie",
                 "rating": 4,
                 "timestamp": "2024-11-12T12:00:00Z"
             }
