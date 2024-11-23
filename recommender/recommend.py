@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import Body, Depends, APIRouter, HTTPException, status, Query
-from recommender.content_based import get_recommendations_fuzzy
+from content_based import get_recommendations_fuzzy
 import json
 router = APIRouter()
 
@@ -20,7 +20,7 @@ async def get_movies_recommend(query: Optional[str] = Query(None, description="S
             "status_code": 200,
             "response_type": "success",
             "description": "Movies retrieved successfully",
-            "data": json.loads(matching_movies),
+            "data": matching_movies,
         }
     return {
         "status_code": 404,

@@ -1,11 +1,11 @@
 import pandas as pd
 from pymongo import MongoClient
 
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("")
 db = client["pbl6"]
 collection = db["content_based_data"]
 
-file_path = r"processed_data.csv"
+file_path = r"C:\Users\Lenovo\Downloads\processed_data (3).csv"
 data = pd.read_csv(file_path)
 
 data_dict = data.to_dict(orient="records")

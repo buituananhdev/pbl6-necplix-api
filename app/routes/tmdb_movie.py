@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Query
 from schemas.tmdb_movie import MovieDetail
-from tmdb.tmdb import fetch_movies_popular, fetch_movies_trending, fetch_tv_popular, fetch_tv_trending, fetch_movie_detail
+from tmdb.tmdb import fetch_movies_popular, fetch_movies_trending, fetch_tv_popular, fetch_tv_trending, fetch_movie_detail, fetch_movie_recommendations
 
 router = APIRouter()
 
@@ -62,3 +62,16 @@ async def get_movie_detail(movie_id: int = Query(...)):
         "data": movie,
     }
 
+@router.get("/recommendations", response_description="Movies recommendations retrieved")
+async def get_movie_recommendations(movie_id: int = Query(...), page: int = Query(1)):
+    images = await fetch_movie_recommendations(movie_id, page)
+
+    if images is None or images == {}:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    return {
+        "status_code": 200,
+        "response_type": "success",
+        "description": "Movie images data retrieved successfully",
+        "data": images,
+    }

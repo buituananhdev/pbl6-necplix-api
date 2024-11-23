@@ -90,33 +90,33 @@ class BelongsToCollection(BaseModel):
 
 
 class MovieDetail(BaseModel):
-    adult: bool
+    adult: Optional[bool] = True
     backdrop_path: Optional[str] = None
     belongs_to_collection: Optional[BelongsToCollection] = None
     budget: Optional[int] = None
-    genres: List[Genre]
+    genres: Optional[List[Genre]] = None
     homepage: Optional[str] = None
-    id: int
+    id: Optional[int] = None
     imdb_id: Optional[str] = None
-    origin_country: List[str]
-    original_language: str
-    original_title: str
-    overview: str
-    popularity: float
+    origin_country: Optional[List[str]] = None
+    original_language: Optional[str] = None
+    original_title: Optional[str] = None
+    overview: Optional[str] = None
+    popularity: Optional[float] = None
     poster_path: Optional[str] = None
-    production_companies: List[ProductionCompany]
-    production_countries: List[ProductionCountry]
-    release_date: str
+    production_companies: Optional[List[ProductionCompany]] = None
+    production_countries: Optional[List[ProductionCountry]] = None
+    release_date: Optional[str] = None
     revenue: Optional[int] = None
     runtime: Optional[int] = None
-    spoken_languages: List[SpokenLanguage]
-    status: str
+    spoken_languages: Optional[List[SpokenLanguage]] = None
+    status: Optional[str] = None
     tagline: Optional[str] = None
-    title: str
-    video: bool
-    vote_average: float
-    vote_count: int
-    videos: VideoResults
+    title: Optional[str] = None
+    video: Optional[bool] = None
+    vote_average: Optional[float] = None
+    vote_count: Optional[int] = None
+    videos: Optional[VideoResults] = None
 
     class Config:
         json_schema_extra = {

@@ -4,7 +4,10 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic_settings import BaseSettings
 import models
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     # database configurations
@@ -22,7 +25,12 @@ class Settings(BaseSettings):
 
 
 async def initiate_database():
-    client = AsyncIOMotorClient(Settings().DATABASE_URL)
-    await init_beanie(
-        database=client.get_default_database(), document_models=models.__all__
-    )
+    try:
+        logger.info("Initializing database...")
+        client = AsyncIOMotorClient(Settings().DATABASE_URL)
+        await init_beanie(
+            database=client.get_default_database(), document_models=models.__all__
+        )
+        logger.info("Database initialized successfully!")
+    except Exception as e:
+        logger.error(f"Error initializing database: {e}")

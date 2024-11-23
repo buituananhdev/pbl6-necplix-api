@@ -1,6 +1,34 @@
 version: "3.8"
 
 services:
+  web:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./app/.env.dev
+    depends_on:
+      - redis
+      - mongodb
+    volumes:
+      - ./app:/app
+
+  recommender:
+    build:
+      context: .
+      dockerfile: ./recommender/Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./recommender/.env.dev
+    depends_on:
+      - redis
+      - mongodb
+    volumes:
+      - ./recommender:/recommender
+
   redis:
     image: redis:latest
     ports:
@@ -15,20 +43,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 123456Aa
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo_data:/data/db
-
-  web:
-    build: .
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env.dev
-    restart: always
-    depends_on:
-      - redis
-      - mongodb
 
 volumes:
   mongo_data:
