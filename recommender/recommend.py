@@ -20,7 +20,7 @@ async def get_movies_recommend(query: Optional[str] = Query(None, description="S
             "status_code": 200,
             "response_type": "success",
             "description": "Movies retrieved successfully",
-            "data": json.loads(matching_movies),
+            "data": matching_movies,
         }
     return {
         "status_code": 404,
