@@ -7,7 +7,7 @@ from datetime import datetime
 class Rating(Document):
     user_id: Optional[Link[User]] = None
     movie_id: int
-    rating: int
+    rating: float
     comment: Optional[str] = None
     timestamp: Optional[datetime] = datetime.now()
 

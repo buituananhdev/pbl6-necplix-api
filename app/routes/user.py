@@ -27,7 +27,6 @@ async def user_login(user_credentials: UserSignIn = Body(...)):
 
 @router.get("/get-me", response_model=UserData)
 async def get_me(user_id: str = Depends(get_user_id_from_token)):
-    print(user_id)
     user = await User.find_one({"_id": user_id})
     if user is None:
         raise HTTPException(
