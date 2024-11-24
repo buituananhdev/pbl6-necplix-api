@@ -1,13 +1,18 @@
-from beanie import Document
-from fastapi.security import HTTPBasicCredentials
-from pydantic import BaseModel, EmailStr
-
+from beanie import Document, Link
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from typing import Optional, List
+from datetime import datetime
+from beanie import PydanticObjectId
 
 class User(Document):
     fullname: str
     email: EmailStr
     password: str
-    user_id: int
+    age: Optional[int] = None
+    is_active: bool = True
+    created_at: datetime = datetime.now()
+    parent_id: Optional[Link["User"]] = None
+    user_id: Optional[int] = None
 
     class Config:
         json_schema_extra = {
@@ -15,29 +20,10 @@ class User(Document):
                 "fullname": "Bui Tuan Anh",
                 "email": "anhaanh2003@gmail.com",
                 "password": "3xt3m#",
-                "user_id": 1
+                "age": 21,
+                "is_active": True,
+                "created_at": "2024-11-24T12:00:00Z"
             }
         }
-
     class Settings:
-        name = "user"
-
-
-class UserSignIn(HTTPBasicCredentials):
-    class Config:
-        json_schema_extra = {
-            "example": {"username": "anhaanh2003@gmail.com", "password": "3xt3m#"}
-        }
-
-
-class UserData(BaseModel):
-    fullname: str
-    email: EmailStr
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "fullname": "Bui Tuan Anh",
-                "email": "anhaanh2003@gmail.com",
-            }
-        }
+        name = "users"
