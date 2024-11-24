@@ -2,17 +2,18 @@ from typing import List, Union
 from beanie import PydanticObjectId
 from models.rating import Rating
 from models.movie import Movie
+from fastapi import Depends, HTTPException
 
 rating_collection = Rating
 movie_collection = Movie
 async def add_rating(new_rating: Rating) -> Union[str, Rating]:
     movie = await movie_collection.find_one({"movie_id": new_rating.movie_id})
     if not movie:
-        return None
+        raise HTTPException(status_code=404, detail="Movie not found!")
 
     existing_rating = await rating_collection.find_one({"movie_id": new_rating.movie_id, "user_id": new_rating.user_id})
     if existing_rating:
-        return None
+        raise HTTPException(status_code=409, detail="User already rated this movie!")
 
     rating = await new_rating.create()
     return rating
