@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, Any
 from beanie import PydanticObjectId
 from datetime import datetime
-
+from schemas.user import UserData
 class CreateRatingModel(BaseModel):
     movie_id: int
     rating: float
@@ -41,7 +41,7 @@ class UpdateRatingModel(BaseModel):
         }
 
 class Response(BaseModel):
-    user_id: PydanticObjectId
+    user: Optional[UserData] = None
     movie_id: int
     rating: float
     comment: Optional[str] = None
