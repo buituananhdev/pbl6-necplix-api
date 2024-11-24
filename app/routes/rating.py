@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Body, HTTPException, Depends, Query
-from bson import ObjectId
 from database.rating import *
 from models.rating import Rating
-from schemas.rating import Response, UpdateRatingModel
-from auth.jwt_bearer import JWTBearer
+from schemas.rating import Response, UpdateRatingModel, CreateRatingModel
+from auth.jwt_bearer import JWTBearer, get_user_id_from_token
 from auth.jwt_handler import decode_jwt
 from beanie import PydanticObjectId
 
@@ -46,7 +45,9 @@ async def get_rating_data(id: PydanticObjectId):
 
 
 @router.post("/", response_description="Rating data added into the database")
-async def add_rating_data(rating: Rating = Body(...)):
+async def add_rating_data(create_rating: CreateRatingModel = Body(...), user_id: str = Depends(get_user_id_from_token)):
+    rating = Rating(**create_rating.dict(), user_id=user_id)
+    print(rating)
     new_rating = await add_rating(rating)
     if new_rating:
         return create_response(

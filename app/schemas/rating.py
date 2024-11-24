@@ -3,10 +3,26 @@ from typing import Optional, Any
 from beanie import PydanticObjectId
 from datetime import datetime
 
+class CreateRatingModel(BaseModel):
+    movie_id: int
+    rating: float
+    comment: Optional[str] = None
+    class Collection:
+        name = "rating"
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "movie_id": 123,
+                "rating": 4,
+                "comment": "This is a great movie"
+            }
+        }
+
 class UpdateRatingModel(BaseModel):
     user_id: PydanticObjectId
     movie_id: int
-    rating: int
+    rating: float
     comment: Optional[str] = None
     timestamp: datetime = datetime.now()
 
@@ -27,7 +43,7 @@ class UpdateRatingModel(BaseModel):
 class Response(BaseModel):
     user_id: PydanticObjectId
     movie_id: int
-    rating: int
+    rating: float
     comment: Optional[str] = None
     timestamp: datetime = datetime.now()
 
