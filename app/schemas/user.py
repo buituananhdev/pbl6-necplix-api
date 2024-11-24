@@ -28,24 +28,6 @@ class UserSignUp(BaseModel):
             }
         }
 
-class CreateChildAccount(BaseModel):
-    fullname: str
-    email: EmailStr
-    password: str
-    age: int
-    parent_id: Optional[PydanticObjectId] = None
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "fullname": "Bui Tuan Anh",
-                "email": "anhaanh2003@gmail.com",
-                "password": "3xt3m#",
-                "age": 21,
-                "parent_id": "64f5c3e7e88bfaeb1e3d435e"
-            }
-        }
-
 class UserData(BaseModel):
     fullname: str
     email: EmailStr
