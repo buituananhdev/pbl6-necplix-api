@@ -1,5 +1,7 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException
+from bson import ObjectId
 
 from .jwt_handler import decode_jwt
 
@@ -36,3 +38,14 @@ class JWTBearer(HTTPBearer):
             return credentials.credentials
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization token")
+
+async def get_user_id_from_token(token: str = Depends(JWTBearer())) -> str:
+    payload = decode_jwt(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    user_id = payload.get("user_id")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token data")
+
+    return ObjectId(user_id)
