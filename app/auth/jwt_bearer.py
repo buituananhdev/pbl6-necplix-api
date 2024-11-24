@@ -23,7 +23,6 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super(
             JWTBearer, self
         ).__call__(request)
-        print("Credentials :", credentials)
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(
@@ -39,13 +38,13 @@ class JWTBearer(HTTPBearer):
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization token")
 
-async def get_user_id_from_token(token: str = Depends(JWTBearer())) -> str:
+async def get_user_id_from_token(token: str = Depends(JWTBearer())) -> ObjectId:
     payload = decode_jwt(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     user_id = payload.get("user_id")
-    if user_id is None:
+    if user_id is None or not ObjectId.is_valid(user_id):
         raise HTTPException(status_code=401, detail="Invalid token data")
 
     return ObjectId(user_id)

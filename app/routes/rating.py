@@ -17,7 +17,7 @@ def create_response(status_code: int, response_type: str, description: str, data
         "data": data,
     }
 
-@router.get("/", response_description="Ratings retrieved")
+@router.get("", response_description="Ratings retrieved")
 async def get_movies_ratings(movie_id: int = Query(...)):
     ratings = await retrieve_movies_ratings(movie_id)
     return create_response(
@@ -44,7 +44,7 @@ async def get_rating_data(id: PydanticObjectId):
     )
 
 
-@router.post("/", response_description="Rating data added into the database")
+@router.post("", response_description="Rating data added into the database")
 async def add_rating_data(create_rating: CreateRatingModel = Body(...), user_id: str = Depends(get_user_id_from_token)):
     rating = Rating(**create_rating.dict(), user_id=user_id)
     print(rating)
