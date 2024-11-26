@@ -1,8 +1,10 @@
 from typing import List, Union
 from beanie import PydanticObjectId
 from models.rating import Rating
+from schemas.rating import Response
+from schemas.user import UserData
 from models.movie import Movie
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 
 rating_collection = Rating
 movie_collection = Movie
@@ -42,6 +44,18 @@ async def update_rating_data(id: PydanticObjectId, data: dict) -> Union[bool, Ra
         return rating
     return False
 
-async def retrieve_movies_ratings(movie_id: int) -> List[Rating]:
-    ratings = await rating_collection.find({"movie_id": movie_id}).to_list()
-    return ratings
+async def retrieve_movies_ratings(movie_id: int) -> List[dict]:
+    ratings = await rating_collection.find(Rating.movie_id == movie_id).to_list()
+
+    rating_response = []
+    
+    for rating in ratings:
+        response = Response(**rating.dict())
+        
+        if rating.user_id:
+            user_data = await rating.user_id.fetch()
+            response.user = UserData(**user_data.dict())
+
+        rating_response.append(response)
+
+    return rating_response
