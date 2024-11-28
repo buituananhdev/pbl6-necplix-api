@@ -11,7 +11,7 @@ class User(Document):
     age: Optional[int] = None
     is_active: bool = True
     created_at: datetime = datetime.now()
-    parent_id: Optional[Link["User"]] = None
+    parent_id: PydanticObjectId = None
     user_id: Optional[int] = None
 
     class Config:
