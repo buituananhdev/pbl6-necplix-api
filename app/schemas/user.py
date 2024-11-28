@@ -30,7 +30,7 @@ class UserSignUp(BaseModel):
 
 class UserData(BaseModel):
     fullname: str
-    email: EmailStr
+    email: Optional[EmailStr] = None
     age: int
     parent_id: Optional[PydanticObjectId] = None
 
@@ -42,3 +42,19 @@ class UserData(BaseModel):
                 "age": 1
             }
         }
+
+class ChildSignUp(BaseModel):
+    fullname: str = Field(..., max_length=100, example="Bui Tuan Anh")
+    age: Optional[int] = Field(None, ge=0, example=21)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "fullname": "Bui Tuan Anh",
+                "age": 21
+            }
+        }
+
+class TokenUserPayload(BaseModel):
+    user_id: PydanticObjectId
+    age: int

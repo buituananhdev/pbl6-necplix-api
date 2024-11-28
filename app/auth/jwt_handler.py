@@ -11,9 +11,9 @@ def token_response(token: str):
 secret_key = Settings().secret_key
 
 
-def sign_jwt(user_id: str) -> Dict[str, str]:
+def sign_jwt(user_id: str, age: int) -> Dict[str, str]:
     # Set the expiry time.
-    payload = {"user_id": user_id, "expires": time.time() + 2400}
+    payload = {"user_id": user_id, "age": age, "expires": time.time() + 2400}
     return token_response(jwt.encode(payload, secret_key, algorithm="HS256"))
 
 
