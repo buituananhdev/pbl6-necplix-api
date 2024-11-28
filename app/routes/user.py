@@ -68,6 +68,7 @@ async def user_signup(
         fullname=user.fullname,
         email=user.email,
         age=user.age,
+        parent_id=user.parent_id,
         is_active=user.is_active,
         created_at=user.created_at,
     )
