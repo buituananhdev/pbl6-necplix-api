@@ -16,14 +16,14 @@ settings = Settings()
 api_key = settings.TMDB_API_KEY
 redis_service = get_redis_service()
 
-async def fetch_movies_popular(page: int) -> List[TMDBMovie]:
+async def fetch_movies_popular(page: int, include_adult: bool) -> List[TMDBMovie]:
     cache_key = f"movies_popular_{page}"
     try:
         cached_data = redis_service.get(cache_key)
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&language=en-US&page={page}"
+        url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -39,14 +39,14 @@ async def fetch_movies_popular(page: int) -> List[TMDBMovie]:
         return []
 
 
-async def fetch_movies_trending(page: int) -> List[TMDBMovie]:
+async def fetch_movies_trending(page: int, include_adult: bool) -> List[TMDBMovie]:
     cache_key = f"movies_trending_{page}"
     try:
         cached_data = redis_service.get(cache_key)
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/trending/movie/day?api_key={api_key}&language=en-US&page={page}"
+        url = f"https://api.themoviedb.org/3/trending/movie/day?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -62,14 +62,14 @@ async def fetch_movies_trending(page: int) -> List[TMDBMovie]:
         return []
 
 
-async def fetch_tv_popular(page: int) -> List[TMDBMovie]:
+async def fetch_tv_popular(page: int, include_adult: bool) -> List[TMDBMovie]:
     cache_key = f"tv_popular_{page}"
     try:
         cached_data = redis_service.get(cache_key)
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/tv/popular?api_key={api_key}&language=en-US&page={page}"
+        url = f"https://api.themoviedb.org/3/tv/popular?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -85,14 +85,14 @@ async def fetch_tv_popular(page: int) -> List[TMDBMovie]:
         return []
 
 
-async def fetch_tv_trending(page: int) -> List[TMDBMovie]:
+async def fetch_tv_trending(page: int, include_adult: bool) -> List[TMDBMovie]:
     cache_key = f"tv_trending_{page}"
     try:
         cached_data = redis_service.get(cache_key)
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/trending/tv/day?api_key={api_key}&language=en-US&page={page}"
+        url = f"https://api.themoviedb.org/3/trending/tv/day?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -187,14 +187,14 @@ async def fetch_movies_by_movie_ids(movie_ids: List[int]) -> List[TMDBMovie]:
         logger.exception(f"Unexpected error in fetch_movies_by_movie_ids: {e}")
         return []
 
-async def fetch_movies_by_keyword(keyword: str, page: int) -> List[TMDBMovie]:
+async def fetch_movies_by_keyword(keyword: str, page: int, include_adult: bool) -> List[TMDBMovie]:
     cache_key = f"movies_keyword_{keyword}"
     try:
         cached_data = redis_service.get(cache_key)
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&language=en-US&query={keyword}&page={page}"
+        url = f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&language=en-US&query={keyword}&page={page}&include_adult={include_adult}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         

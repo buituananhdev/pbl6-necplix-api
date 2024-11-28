@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Depends, HTTPException
 from beanie import PydanticObjectId
 
+from schemas.user import TokenUserPayload
 from .jwt_handler import decode_jwt
 
 
@@ -38,13 +39,14 @@ class JWTBearer(HTTPBearer):
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization token")
 
-async def get_user_id_from_token(token: str = Depends(JWTBearer())) -> PydanticObjectId:
+async def get_current_user(token: str = Depends(JWTBearer())) -> TokenUserPayload:
     payload = decode_jwt(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     user_id = payload.get("user_id")
+    age = payload.get("age")
     if user_id is None or not PydanticObjectId.is_valid(user_id):
         raise HTTPException(status_code=401, detail="Invalid token data")
 
-    return PydanticObjectId(user_id)
+    return TokenUserPayload(user_id=PydanticObjectId(user_id), age=age)

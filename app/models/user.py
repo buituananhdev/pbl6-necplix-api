@@ -6,8 +6,8 @@ from beanie import PydanticObjectId
 
 class User(Document):
     fullname: str
-    email: EmailStr
-    password: str
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
     age: Optional[int] = None
     is_active: bool = True
     created_at: datetime = datetime.now()

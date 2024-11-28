@@ -1,13 +1,13 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Query
-from schemas.tmdb_movie import MovieDetail
-from tmdb.tmdb import fetch_movies_popular, fetch_movies_trending, fetch_tv_popular, fetch_tv_trending, fetch_movie_detail, fetch_movie_recommendations, fetch_movies_by_keyword
-
+from fastapi import APIRouter, HTTPException, Query, Depends
+from tmdb.tmdb import *
+from auth.jwt_bearer import get_current_user
+from schemas.user import TokenUserPayload
 router = APIRouter()
 
 @router.get("/polular", response_description="Movies retrieved")
-async def get_movies_popular(page: int = Query(1)):
-    movies = await fetch_movies_popular(page)
+async def get_movies_popular(page: int = Query(1), user: TokenUserPayload = Depends(get_current_user)):
+    movies = await fetch_movies_popular(page, user.age > 18)
     return {
         "status_code": 200,
         "response_type": "success",
@@ -17,8 +17,8 @@ async def get_movies_popular(page: int = Query(1)):
 
 
 @router.get("/trending", response_description="Movies retrieved")
-async def get_movies_trending(page: int = Query(1)):
-    movies = await fetch_movies_trending(page)
+async def get_movies_trending(page: int = Query(1), user: TokenUserPayload = Depends(get_current_user)):
+    movies = await fetch_movies_trending(page, user.age > 18)
     return {
         "status_code": 200,
         "response_type": "success",
@@ -28,8 +28,8 @@ async def get_movies_trending(page: int = Query(1)):
 
 
 @router.get("/tv/popular", response_description="Movies retrieved")
-async def get_tv_popular(page: int = Query(1)):
-    movies = await fetch_tv_popular(page)
+async def get_tv_popular(page: int = Query(1), user: TokenUserPayload = Depends(get_current_user)):
+    movies = await fetch_tv_popular(page, user.age > 18)
     return {
         "status_code": 200,
         "response_type": "success",
@@ -39,8 +39,8 @@ async def get_tv_popular(page: int = Query(1)):
 
 
 @router.get("/tv/trending", response_description="Movies retrieved")
-async def get_tv_trending(page: int = Query(1)):
-    movies = await fetch_tv_trending(page)
+async def get_tv_trending(page: int = Query(1), user: TokenUserPayload = Depends(get_current_user)):
+    movies = await fetch_tv_trending(page, user.age > 18)
     return {
         "status_code": 200,
         "response_type": "success",
@@ -77,11 +77,12 @@ async def get_movie_recommendations(movie_id: int = Query(...), page: int = Quer
     }
 
 @router.get("/search", response_description="Movies search retrieved")
-async def get_movie_recommendations(
+async def get_movie_search(
     key_word: str = Query(..., description="Keyword for movie search"),
-    page: int = Query(1, ge=1, description="Page number for pagination")
+    page: int = Query(1, ge=1, description="Page number for pagination"),
+    user: TokenUserPayload = Depends(get_current_user)
 ):
-    images = await fetch_movies_by_keyword(key_word, page)
+    images = await fetch_movies_by_keyword(key_word, page, user.age > 18)
 
     if not images:
         raise HTTPException(status_code=404, detail="Movies not found")
