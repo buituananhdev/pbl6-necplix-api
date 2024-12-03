@@ -35,3 +35,17 @@ async def update_user_data(id: PydanticObjectId, data: dict) -> Union[bool, User
 async def get_user_by_email(email: str) -> User:
     user = await user_collection.find_one({"email": email})
     return user
+
+async def add_to_recently_viewed(user_id: PydanticObjectId, movie_id: int) -> bool:
+    user = await user_collection.get(user_id)
+    if user:
+        if user.recently_viewed is None:
+            user.recently_viewed = []
+        if movie_id in user.recently_viewed:
+            user.recently_viewed.remove(movie_id)
+        
+        user.recently_viewed.insert(0, movie_id)
+        user.recently_viewed = user.recently_viewed[:10]
+        await user.save()
+        return True
+    return False

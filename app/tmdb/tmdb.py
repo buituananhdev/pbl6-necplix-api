@@ -3,10 +3,12 @@ from schemas.tmdb_movie import TMDBMovie, MovieDetail
 from common.config.config import Settings
 from services.redis import get_redis_service
 from database.movie import add_movie, increment_viewcount, retrieve_movie_by_movie_id
+from database.user import add_to_recently_viewed, retrieve_user
 import httpx
 import json
 import logging
 import asyncio
+from beanie import PydanticObjectId
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -107,7 +109,7 @@ async def fetch_tv_trending(page: int, include_adult: bool) -> List[TMDBMovie]:
         logger.exception(f"Error fetching trending TV shows for page {page}: {e}")
         return []
 
-async def fetch_movie_detail(movie_id: int) -> MovieDetail:
+async def fetch_movie_detail(movie_id: int, user_id: PydanticObjectId = None) -> MovieDetail:
     cache_key = f"movie_detail_{movie_id}"
     try:
         cached_data = redis_service.get(cache_key)
@@ -129,7 +131,8 @@ async def fetch_movie_detail(movie_id: int) -> MovieDetail:
         if movie is None:
             await add_movie(movie_data['id'], movie_data['title'])
         await increment_viewcount(movie_data['id'])
-
+        if user_id:
+            await add_to_recently_viewed(user_id, movie_data['id'])
         return MovieDetail(**movie_data)
     except Exception as e:
         logger.exception(f"Error fetching movie detail for ID {movie_id}: {e}")
@@ -207,4 +210,15 @@ async def fetch_movies_by_keyword(keyword: str, page: int, include_adult: bool) 
             return []
     except Exception as e:
         logger.exception(f"Error fetching movies by keyword {keyword}: {e}")
+        return []
+
+async def fetch_recently_viewed(user_id: int) -> List[TMDBMovie]:
+    try:
+        user = await retrieve_user(user_id)
+        if user is None or user.recently_viewed is None:
+            return []
+
+        return await fetch_movies_by_movie_ids(user.recently_viewed)
+    except Exception as e:
+        logger.exception(f"Error fetching recently viewed movies for user ID {user_id}: {e}")
         return []
