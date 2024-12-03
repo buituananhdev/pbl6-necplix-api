@@ -13,6 +13,7 @@ class User(Document):
     created_at: datetime = datetime.now()
     parent_id: PydanticObjectId = None
     user_id: Optional[int] = None
+    recently_viewed: Optional[List[int]] = []
 
     class Config:
         json_schema_extra = {

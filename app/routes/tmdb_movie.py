@@ -49,8 +49,8 @@ async def get_tv_trending(page: int = Query(1), user: TokenUserPayload = Depends
     }
 
 @router.get("/", response_description="Movies retrieved")
-async def get_movie_detail(movie_id: int = Query(...)):
-    movie = await fetch_movie_detail(movie_id)
+async def get_movie_detail(movie_id: int = Query(...), user: TokenUserPayload = Depends(get_current_user)):
+    movie = await fetch_movie_detail(movie_id, user.user_id)
 
     if movie is None or movie == {}:
         raise HTTPException(status_code=404, detail="Movie not found")
@@ -92,4 +92,14 @@ async def get_movie_search(
         "response_type": "success",
         "description": "Movies data retrieved successfully",
         "data": images,
+    }
+
+@router.get("/recently-viewed", response_description="Movies retrieved")
+async def get_recently_viewed(user: TokenUserPayload = Depends(get_current_user)):
+    movies = await fetch_recently_viewed(user.user_id)
+    return {
+        "status_code": 200,
+        "response_type": "success",
+        "description": "Movies data retrieved successfully",
+        "data": movies,
     }
