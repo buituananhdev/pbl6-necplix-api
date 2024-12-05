@@ -14,6 +14,7 @@ async def retrieve_users() -> List[User]:
 
 async def retrieve_user(id: PydanticObjectId) -> User:
     user = await user_collection.get(id)
+    print(user)
     if user:
         return user
 
