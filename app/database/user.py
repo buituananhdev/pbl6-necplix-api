@@ -49,3 +49,7 @@ async def add_to_recently_viewed(user_id: PydanticObjectId, movie_id: int) -> bo
         await user.save()
         return True
     return False
+
+async def get_user_childs(parent_id: PydanticObjectId) -> List[User]:
+    users = await user_collection.find(User.parent_id == parent_id).to_list()
+    return users
