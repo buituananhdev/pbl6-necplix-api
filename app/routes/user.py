@@ -2,7 +2,7 @@ from fastapi import Body, Depends, APIRouter, HTTPException, status
 from passlib.context import CryptContext
 from auth.jwt_bearer import get_current_user
 from auth.jwt_handler import sign_jwt
-from database.user import add_user, get_user_by_email
+from database.user import *
 from models.user import User
 from schemas.user import *
 
@@ -52,6 +52,12 @@ async def create_child(
     user_sign_up: ChildSignUp = Body(...),
     parent: TokenUserPayload = Depends(get_current_user),
 ):
+    childs = await get_user_childs(parent.user_id);
+    if childs.count() >= 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="You can only have up to 5 childs"
+        )
+
     user = User(**user_sign_up.dict())
     user.parent_id = parent.user_id
     await add_user(user)
@@ -64,5 +70,5 @@ async def create_child(
 
 @router.get("/childs", response_model=list[UserData])
 async def get_childs(parent: TokenUserPayload = Depends(get_current_user)):
-    users = await User.find(User.parent_id == parent.user_id).to_list()
+    users = await get_user_childs(parent.user_id)
     return users
