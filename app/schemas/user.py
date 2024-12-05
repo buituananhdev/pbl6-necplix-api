@@ -29,6 +29,7 @@ class UserSignUp(BaseModel):
         }
 
 class UserData(BaseModel):
+    id: PydanticObjectId
     fullname: str
     email: Optional[EmailStr] = None
     age: int
@@ -37,6 +38,7 @@ class UserData(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "id": "61f6d3f9b8c6e0a0c1f2e1b5",
                 "fullname": "Bui Tuan Anh",
                 "email": "anhaanh2003@gmail.com",
                 "age": 1
@@ -52,6 +54,18 @@ class ChildSignUp(BaseModel):
             "example": {
                 "fullname": "Bui Tuan Anh",
                 "age": 21
+            }
+        }
+
+class ChooseProfile(BaseModel):
+    user_id: PydanticObjectId
+    parent_id: PydanticObjectId
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_id": "61f6d3f9b8c6e0a0c1f2e1b5",
+                "parent_id": "61f6d3f9b8c6e0a0c1f2e1b5"
             }
         }
 

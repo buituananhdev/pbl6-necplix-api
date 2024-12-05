@@ -13,7 +13,7 @@ hash_helper = CryptContext(schemes=["bcrypt"])
 
 @router.post("/login")
 async def user_login(user_credentials: UserSignIn = Body(...)):
-    user_exists = await User.find_one({"email": user_credentials.username})
+    user_exists = await get_user_by_email(user_credentials.email)
     
     if user_exists:
         password_correct = hash_helper.verify(user_credentials.password, user_exists.password)
@@ -24,9 +24,18 @@ async def user_login(user_credentials: UserSignIn = Body(...)):
     
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
 
+@router.post("/choose-profile")
+async def user_login(payload: ChooseProfile = Body(...)):
+    print(payload)
+    user_exists = await retrieve_user(payload.user_id)
+    print(user_exists)
+    if(not user_exists and user_exists.parent_id != payload.parent_id):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
+    return sign_jwt(str(user_exists.id), user_exists.age)
+
 @router.get("/get-me", response_model=UserData)
 async def get_me(user: TokenUserPayload = Depends(get_current_user)):
-    user = await User.find_one({"_id": user.user_id})
+    user = await retrieve_user(user.user_id)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -52,14 +61,16 @@ async def create_child(
     user_sign_up: ChildSignUp = Body(...),
     parent: TokenUserPayload = Depends(get_current_user),
 ):
-    childs = await get_user_childs(parent.user_id);
-    if childs.count() >= 4:
+    childs = await get_user_childs(parent.user_id)
+    if len(childs) >= 5:  # Ensure the user can have a maximum of 5 children
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="You can only have up to 5 childs"
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="You can only have up to 5 children"
         )
 
     user = User(**user_sign_up.dict())
     user.parent_id = parent.user_id
+    
     await add_user(user)
 
     return UserData(
@@ -67,6 +78,7 @@ async def create_child(
         age=user.age,
         parent_id=user.parent_id
     )
+
 
 @router.get("/childs", response_model=list[UserData])
 async def get_childs(parent: TokenUserPayload = Depends(get_current_user)):
