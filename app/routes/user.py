@@ -26,9 +26,7 @@ async def user_login(user_credentials: UserSignIn = Body(...)):
 
 @router.post("/choose-profile")
 async def user_login(payload: ChooseProfile = Body(...)):
-    print(payload)
     user_exists = await retrieve_user(payload.user_id)
-    print(user_exists)
     if(not user_exists and user_exists.parent_id != payload.parent_id):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
     return sign_jwt(str(user_exists.id), user_exists.age)

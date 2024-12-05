@@ -59,7 +59,7 @@ class ChildSignUp(BaseModel):
 
 class ChooseProfile(BaseModel):
     user_id: PydanticObjectId
-    parent_id: PydanticObjectId
+    parent_id: Optional[PydanticObjectId] = None
 
     class Config:
         json_schema_extra = {
