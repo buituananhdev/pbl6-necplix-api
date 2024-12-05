@@ -41,7 +41,8 @@ class UserData(BaseModel):
                 "id": "61f6d3f9b8c6e0a0c1f2e1b5",
                 "fullname": "Bui Tuan Anh",
                 "email": "anhaanh2003@gmail.com",
-                "age": 1
+                "age": 1,
+                "parent_id": "61f6d3f9b8c6e0a0c1f2e1b5"
             }
         }
 

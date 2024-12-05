@@ -72,6 +72,7 @@ async def create_child(
     await add_user(user)
 
     return UserData(
+        id=user.id,
         fullname=user.fullname,
         age=user.age,
         parent_id=user.parent_id
