@@ -230,36 +230,42 @@ async def fetch_movies_by_genre(page: int, genre_id: int, include_adult: bool) -
         cached_data = redis_service.get(cache_key)
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
+
         if not include_adult:
             genre_id = "16,10751"
+        
+        url_params = {
+            "api_key": api_key,
+            "language": "en-US",
+            "page": page,
+            "include_adult": str(include_adult).lower(),
+            "sort_by": "popularity.desc",
+            "with_genres": genre_id,
+        }
+        
+        if not include_adult:
+            url_params.update({
+                "certification_country": "US",
+                "certification.lte": "G",
+            })
+        else:
+            url_params["without_genres"] = "16"
 
-        url = (
-            f"https://api.themoviedb.org/3/discover/movie"
-            f"?api_key={api_key}"
-            f"&language=en-US"
-            f"&page={page}"
-            f"&include_adult={include_adult}"
-            f"&sort_by=popularity.desc"
-            f"&with_genres={genre_id}"
+        url = f"https://api.themoviedb.org/3/discover/movie?" + "&".join(
+            f"{key}={value}" for key, value in url_params.items()
         )
 
-        if not include_adult:
-            url += "&certification_country=US&certification.lte=G@sort_by=popularity.desc"
-
-        print("include", include_adult)
-        print(url)
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
+            if response.status_code == 200:
+                movies_data = response.json().get("results", [])
+                redis_service.set(cache_key, json.dumps(movies_data), ttl=3600)
+                return [TMDBMovie(**movie) for movie in movies_data]
 
-        if response.status_code == 200:
-            movies_data = response.json().get("results", [])
-            redis_service.set(cache_key, json.dumps(movies_data), ttl=3600)
-            return [TMDBMovie(**movie) for movie in movies_data]
-        else:
             logger.error(f"Failed to fetch movies for genre {genre_id}: {response.status_code}")
             return []
     except Exception as e:
-        logger.exception(f"Error fetching movies for genre {genre_id} on page {page}: {e}")
+        logger.exception(f"Error fetching movies for genre {genre_id} on page {page}: {str(e)}")
         return []
 
 async def fetch_genres() -> List[Genre]:

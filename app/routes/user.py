@@ -13,7 +13,7 @@ hash_helper = CryptContext(schemes=["bcrypt"])
 
 @router.post("/login")
 async def user_login(user_credentials: UserSignIn = Body(...)):
-    user_exists = await get_user_by_email(user_credentials.email)
+    user_exists = await get_user_by_email(user_credentials.username)
     
     if user_exists:
         password_correct = hash_helper.verify(user_credentials.password, user_exists.password)
