@@ -103,3 +103,23 @@ async def get_recently_viewed(user: TokenUserPayload = Depends(get_current_user)
         "description": "Movies data retrieved successfully",
         "data": movies,
     }
+
+@router.get("/discover", response_description="Movies retrieved")
+async def get_discover_movies(page: int = Query(1), genre: str = Query(...), user: TokenUserPayload = Depends(get_current_user)):
+    movies = await fetch_movies_by_genre(page, genre, user.age > 18)
+    return {
+        "status_code": 200,
+        "response_type": "success",
+        "description": "Movies data retrieved successfully",
+        "data": movies,
+    }
+
+@router.get("/genres", response_description="Movies retrieved")
+async def get_genres():
+    genres = await fetch_genres()
+    return {
+        "status_code": 200,
+        "response_type": "success",
+        "description": "Movies data retrieved successfully",
+        "data": genres,
+    }

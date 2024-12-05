@@ -1,5 +1,5 @@
 from typing import List
-from schemas.tmdb_movie import TMDBMovie, MovieDetail
+from schemas.tmdb_movie import TMDBMovie, MovieDetail, Genre
 from common.config.config import Settings
 from services.redis import get_redis_service
 from database.movie import add_movie, increment_viewcount, retrieve_movie_by_movie_id
@@ -25,7 +25,10 @@ async def fetch_movies_popular(page: int, include_adult: bool) -> List[TMDBMovie
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
+        url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}&certification_country=US&certification.lte=G@sort_by=popularity.desc"
+        if include_adult:
+            url += "&with_genres=16&with_keywords=cartoon"
+        
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -48,7 +51,10 @@ async def fetch_movies_trending(page: int, include_adult: bool) -> List[TMDBMovi
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/trending/movie/day?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
+        url = f"https://api.themoviedb.org/3/trending/movie/day?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}&certification_country=US&certification.lte=G@sort_by=popularity.desc"
+        if include_adult:
+            url += "&with_genres=16&with_keywords=cartoon"
+        
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -71,7 +77,9 @@ async def fetch_tv_popular(page: int, include_adult: bool) -> List[TMDBMovie]:
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/tv/popular?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
+        url = f"https://api.themoviedb.org/3/tv/popular?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}&certification_country=US&certification.lte=G@sort_by=popularity.desc"
+        if include_adult:
+            url += "&with_genres=16&with_keywords=cartoon"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -94,7 +102,9 @@ async def fetch_tv_trending(page: int, include_adult: bool) -> List[TMDBMovie]:
         if cached_data:
             return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
 
-        url = f"https://api.themoviedb.org/3/trending/tv/day?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}"
+        url = f"https://api.themoviedb.org/3/trending/tv/day?api_key={api_key}&language=en-US&page={page}&include_adult={include_adult}&certification_country=US&certification.lte=G@sort_by=popularity.desc"
+        if include_adult:
+            url += "&with_genres=16&with_keywords=cartoon"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
         
@@ -221,4 +231,63 @@ async def fetch_recently_viewed(user_id: int) -> List[TMDBMovie]:
         return await fetch_movies_by_movie_ids(user.recently_viewed)
     except Exception as e:
         logger.exception(f"Error fetching recently viewed movies for user ID {user_id}: {e}")
+        return []
+
+async def fetch_movies_by_genre(page: int, genre_id: int, include_adult: bool) -> List[TMDBMovie]:
+    cache_key = f"movies_genre_{genre_id}_page_{page}_adult_{include_adult}"
+    try:
+        cached_data = redis_service.get(cache_key)
+        if cached_data:
+            return [TMDBMovie(**movie) for movie in json.loads(cached_data)]
+        if include_adult:
+            genre_id = "16,10751"
+
+        url = (
+            f"https://api.themoviedb.org/3/discover/movie"
+            f"?api_key={api_key}"
+            f"&language=en-US"
+            f"&page={page}"
+            f"&include_adult={include_adult}"
+            f"&sort_by=popularity.desc"
+            f"&with_genres={genre_id}"
+        )
+
+        if include_adult:
+            url += "&certification_country=US&certification.lte=G@sort_by=popularity.desc"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+
+        if response.status_code == 200:
+            movies_data = response.json().get("results", [])
+            redis_service.set(cache_key, json.dumps(movies_data), ttl=3600)
+            return [TMDBMovie(**movie) for movie in movies_data]
+        else:
+            logger.error(f"Failed to fetch movies for genre {genre_id}: {response.status_code}")
+            return []
+    except Exception as e:
+        logger.exception(f"Error fetching movies for genre {genre_id} on page {page}: {e}")
+        return []
+
+async def fetch_genres() -> List[Genre]:
+    cache_key = f"genres"
+    try:
+        cached_data = redis_service.get(cache_key)
+        if cached_data:
+            return [Genre(**genre) for genre in json.loads(cached_data)]
+
+        url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={api_key}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+
+        if response.status_code == 200:
+            genres_data = response.json().get("genres", [])
+            redis_service.set(cache_key, json.dumps(genres_data), ttl=3600)
+            return [Genre(**genre) for genre in genres_data]
+        else:
+            logger.error(f"Failed to fetch genres: {response.status_code}")
+            return []
+    except Exception as e:
+        logger.exception(f"Error fetching genres: {e}")
         return []
