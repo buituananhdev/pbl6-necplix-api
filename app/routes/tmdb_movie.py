@@ -123,3 +123,13 @@ async def get_genres():
         "description": "Movies data retrieved successfully",
         "data": genres,
     }
+
+@router.post("/view", response_description="View movies")
+async def view_movies(movie_id: int = Query(...), user: TokenUserPayload = Depends(get_current_user)):
+    await increment_viewcount(movie_id)
+    await add_to_recently_viewed(user.user_id, movie_id)
+    return {
+        "status_code": 200,
+        "response_type": "success",
+        "description": "View successfully",
+    }

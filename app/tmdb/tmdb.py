@@ -131,9 +131,6 @@ async def fetch_movie_detail(movie_id: int, user_id: PydanticObjectId = None) ->
         movie = await retrieve_movie_by_movie_id(movie_data['id'])
         if movie is None:
             await add_movie(movie_data['id'], movie_data['title'])
-        await increment_viewcount(movie_data['id'])
-        if user_id:
-            await add_to_recently_viewed(user_id, movie_data['id'])
         return MovieDetail(**movie_data)
     except Exception as e:
         logger.exception(f"Error fetching movie detail for ID {movie_id}: {e}")
