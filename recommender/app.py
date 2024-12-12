@@ -23,8 +23,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def start_database():
-    await initiate_content_based_recommendation_optimized()
-    # await initiate_collaborative_based_recommendation()
+    # await initiate_content_based_recommendation_optimized()
+    await initiate_collaborative_based_recommendation()
 
 
 @app.get("/", tags=["Root"])
